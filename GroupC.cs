@@ -49,16 +49,15 @@ namespace FirstGraphsProgram
 
         public bool TestEdge(int n1, int n2)
         {
-           
-                int len = nodesingroup[n1].edge.Count;
-                for (int i = 0; i < len; i++)
+            int len = nodesingroup[n1].edge.Count;
+            for (int i = 0; i < len; i++)
+            {
+                for (int j = 0; j < nodesingroup[n2].edge.Count; j++)
                 {
-                    for (int j = 0; j < nodesingroup[n2].edge.Count; j++)
-                    {
-                        if (nodesingroup[n1].edge[i].Neighbour == nodesingroup[n2] && nodesingroup[n2].edge[j].Neighbour == nodesingroup[n1])
-                            return true;
-                    }
-                } 
+                    if (nodesingroup[n1].edge[i].Neighbour == nodesingroup[n2] && nodesingroup[n2].edge[j].Neighbour == nodesingroup[n1])
+                        return true;
+                }
+            } 
             return false;
         }
 

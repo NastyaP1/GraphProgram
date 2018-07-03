@@ -19,7 +19,7 @@ namespace FirstGraphsProgram
         public int Num { get; set; }
         public List<int> PathGamilt;
         public List<int> PathGamilt1;
-        public List<GroupC> groups;
+        //public List<GroupC> groups;
         private List<NodeC> cs;
         //bool WayFound = false;
 
@@ -28,7 +28,6 @@ namespace FirstGraphsProgram
             nodes = new List<NodeC>();
             PathGamilt = new List<int>();
             PathGamilt1 = new List<int>();
-            groups = new List<GroupC>();
         }
 
         public void AddNode(int x, int y)
@@ -381,21 +380,26 @@ namespace FirstGraphsProgram
 
         public void Group(int n)
         {
+            List<GroupC> groups = new List<GroupC>();
             int groupnumber = 0;
             cs = new List<NodeC>();
-            groups = new List<GroupC>();
             for (int i = 0; i < nodes.Count; i++)
             {
                 cs.Add(nodes[i]);
             }
             while (cs.Count != 0)
             {
-                GroupsGo(cs, n, groupnumber);
+                groups.Add(GroupsGo(n));
                 for (int i = 0; i < groups[groupnumber].nodesingroup.Count; i++)
                 {
                     for (int j = 0; j < nodes.Count; j++)
                     {
-                        if (groups[groupnumber].nodesingroup[i] == nodes[j]) nodes[j].GroupNumber = groupnumber + 1;
+                        if (groups[groupnumber].nodesingroup[i] == nodes[j])
+                        {
+                            nodes[j].GroupNumber = groupnumber + 1;
+                            break;
+                        }
+                        // присваивание узлу в графе номера группы для формы
                     }
                     cs.Remove(groups[groupnumber].nodesingroup[i]);
                 }
@@ -403,18 +407,39 @@ namespace FirstGraphsProgram
             }
         }
 
-        private void GroupsGo(List<NodeC> nodes, int n, int groupnumber)
+        public NodeC CheckMaxEnemies(List<NodeC> nodes)
         {
-            groups.Add(new GroupC(nodes));
-            NodeC maxenemies = groups[groupnumber].CheckMaxEnemies();
-            groups.RemoveAt(groupnumber);
-            groups.Add(new GroupC(new List<NodeC>()));
-            groups[groupnumber].nodesingroup.Add(maxenemies);
-            AddFriends(maxenemies, groupnumber, n);
-            GroupColor(groupnumber);
+            int _count, count = int.MinValue, number = -1;
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                _count = 0;
+                for (int j = 0; j < nodes[i].edge.Count; j++)
+                {
+                    if (nodes[i].edge[j].relation == 2)
+                        _count++;
+                }
+                if (_count >= count)
+                {
+                    count = _count;
+                    number = i;
+                }
+            }
+            if (number != -1)
+                return nodes[number];
+            return null;
         }
 
-        private void AddFriends(NodeC a, int groupnumber, int n)
+        private GroupC GroupsGo(int n)
+        {
+            GroupC groups = new GroupC(new List<NodeC>());
+            NodeC maxenemies = CheckMaxEnemies(cs);
+            groups.nodesingroup.Add(maxenemies);
+            AddFriends(maxenemies, groups, n);
+            GroupColor(groups);
+            return groups;
+        }
+
+        private void AddFriends(NodeC a, GroupC groups, int n)
         {
             for (int i = 0; i < a.edge.Count; i++)
             {
@@ -422,23 +447,23 @@ namespace FirstGraphsProgram
                 {
                     if (TestEdge(GetNodeIndex(a.edge[i].Neighbour), GetNodeIndex(a)) && a.edge[i].relation == 1)
                     {
-                        groups[groupnumber].nodesingroup.Add(a.edge[i].Neighbour);
+                        groups.nodesingroup.Add(a.edge[i].Neighbour);
                     }
                 }
             }
-            for (int i = 0; i < groups[groupnumber].nodesingroup.Count; i++)
+            for (int i = 0; i < groups.nodesingroup.Count; i++)
             {
-                if (!groups[groupnumber].CheckInt(n, groups[groupnumber].NumberOfEnemies(groups[groupnumber].nodesingroup[i])))
-                    groups[groupnumber].nodesingroup.Remove(groups[groupnumber].CheckMaxEnemies());
+                if (!groups.CheckInt(n, groups.NumberOfEnemies(groups.nodesingroup[i])))
+                    groups.nodesingroup.Remove(groups.CheckMaxEnemies());
             }
         }
-        private void GroupColor(int groupnumber)
+        private void GroupColor(GroupC groups)
         {
             for (int i = 0; i < nodes.Count; i++)
             {
-                for (int j = 0; j < groups[groupnumber].nodesingroup.Count; j++)
+                for (int j = 0; j < groups.nodesingroup.Count; j++)
                 {
-                    if (nodes[i] == groups[groupnumber].nodesingroup[j])
+                    if (nodes[i] == groups.nodesingroup[j])
                         nodes[i].color = Color.Gold;
                 }
             }

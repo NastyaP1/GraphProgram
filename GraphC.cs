@@ -392,15 +392,7 @@ namespace FirstGraphsProgram
                 groups.Add(GroupsGo(n));
                 for (int i = 0; i < groups[groupnumber].nodesingroup.Count; i++)
                 {
-                    for (int j = 0; j < nodes.Count; j++)
-                    {
-                        if (groups[groupnumber].nodesingroup[i] == nodes[j])
-                        {
-                            nodes[j].GroupNumber = groupnumber + 1;
-                            break;
-                        }
-                        // присваивание узлу в графе номера группы для формы
-                    }
+                    nodes[GetIndexByName(groups[groupnumber].nodesingroup[i].name)].GroupNumber = groupnumber + 1;
                     cs.Remove(groups[groupnumber].nodesingroup[i]);
                 }
                 groupnumber++;
